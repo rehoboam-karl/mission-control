@@ -25,38 +25,59 @@ def get_agents_status():
         identity_path = Path(workspace) / "IDENTITY.md"
         emoji = "🤖"
         if identity_path.exists():
-            for line in identity_path.read_text().splitlines():
-                if "Emoji:" in line:
-                    emoji = line.split("Emoji:")[-1].strip().split()[0]
-                    break
+            try:
+                content = identity_path.read_text()
+                for line in content.splitlines():
+                    if "Emoji:" in line:
+                        # Extract emoji after "Emoji:" - handle markdown like **Emoji:** 💻
+                        emoji_part = line.split("Emoji:")[-1]
+                        # Remove markdown bold markers (**) and get the first character/emoji
+                        emoji = emoji_part.replace("**", "").strip()
+                        # Get just the first character (the emoji)
+                        if emoji:
+                            emoji = emoji[0]
+                        else:
+                            emoji = "🤖"
+                        break
+            except:
+                pass
 
         # Determine status from session timestamps
         sessions_path = OPENCLAW_HOME / "agents" / agent_id / "sessions" / "sessions.json"
         last_active = None
         session_count = 0
+        
         if sessions_path.exists():
             try:
-                sessions = json.loads(sessions_path.read_text())
-                session_count = len(sessions) if isinstance(sessions, list) else 0
-                # Find most recent activity
-                for s in (sessions if isinstance(sessions, list) else []):
-                    ts = s.get("lastActivityAt") or s.get("updatedAt") or s.get("createdAt")
-                    if ts:
-                        try:
-                            dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
-                            if last_active is None or dt > last_active:
-                                last_active = dt
-                        except:
-                            pass
-            except:
-                pass
+                sessions_data = json.loads(sessions_path.read_text())
+                
+                # sessions.json is a dict, not a list
+                if isinstance(sessions_data, dict):
+                    session_count = len(sessions_data)
+                    # Find most recent activity
+                    for session_key, session_info in sessions_data.items():
+                        # Try various timestamp fields
+                        for ts_field in ["updatedAt", "lastActivityAt", "createdAt"]:
+                            ts = session_info.get(ts_field)
+                            if ts:
+                                try:
+                                    # Handle milliseconds timestamp
+                                    if isinstance(ts, (int, float)) and ts > 1e12:
+                                        ts = ts / 1000
+                                    dt = datetime.fromtimestamp(ts)
+                                    if last_active is None or dt > last_active:
+                                        last_active = dt
+                                except:
+                                    pass
+            except Exception as e:
+                print(f"Error reading sessions for {agent_id}: {e}")
 
         # Check WORKING.md for active task
         working_path = Path(workspace) / "WORKING.md"
         has_active_task = working_path.exists() and working_path.stat().st_size > 50
 
         # Calculate status
-        now = datetime.now(last_active.tzinfo if last_active and last_active.tzinfo else None)
+        now = datetime.now()
         if last_active is None:
             status = "offline"
             status_color = "red"
