@@ -1,33 +1,56 @@
 <!-- Cron Table Partial -->
-<table class="w-full text-sm">
-    <thead>
-        <tr class="text-gray-500 border-b border-brand-border">
-            <th class="text-left py-2">Job</th>
-            <th class="text-left py-2">Status</th>
-            <th class="text-left py-2">Runs</th>
-            <th class="text-left py-2">Cost</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for job in cron_stats.jobs[:15] %}
-        <tr class="border-b border-brand-border/50 hover:bg-brand-black/30">
-            <td class="py-2 font-mono text-xs truncate max-w-[180px]">{{ job.name[:30] }}</td>
-            <td class="py-2">
-                {% if job.status == 'ok' or job.status == 'active' %}
-                <span class="status-dot status-green"></span>
-                {% else %}
-                <span class="status-dot status-red"></span>
-                {% endif %}
-            </td>
-            <td class="py-2 text-gray-400">{{ job.runs }}</td>
-            <td class="py-2 text-gray-400 font-mono text-xs">${{ job.monthly_cost|default(0)|round(2) }}/mo</td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="4" class="py-8 text-center text-gray-500">
-                No cron jobs found
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead>
+            <tr class="text-gray-500 border-b border-brand-border">
+                <th class="text-left py-2 px-3">Job</th>
+                <th py-2 px class="text-left-3">Agent</th>
+                <th class="text-left py-2 px-3">Schedule</th>
+                <th class="text-left py-2 px-3">Status</th>
+                <th class="text-left py-2 px-3">Runs</th>
+                <th class="text-left py-2 px-3">Tokens</th>
+                <th class="text-left py-2 px-3">Cost/mo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in cron_stats.jobs %}
+            <tr class="border-b border-brand-border/50 hover:bg-brand-black/30">
+                <td class="py-2 px-3">
+                    <div class="font-medium">{{ job.name }}</div>
+                    <div class="text-[10px] text-gray-500 font-mono">{{ job.id[:8] }}...</div>
+                </td>
+                <td class="py-2 px-3">
+                    <span class="px-2 py-0.5 text-xs rounded bg-brand-accent/20 text-brand-accent">
+                        {{ job.agent }}
+                    </span>
+                </td>
+                <td class="py-2 px-3 font-mono text-xs text-gray-400">
+                    {{ job.schedule }}
+                </td>
+                <td class="py-2 px-3">
+                    {% if job.status == 'active' %}
+                    <span class="status-dot status-green"></span>
+                    {% else %}
+                    <span class="status-dot status-red"></span>
+                    {% endif %}
+                </td>
+                <td class="py-2 px-3 text-gray-400">
+                    {{ job.runs }}
+                </td>
+                <td class="py-2 px-3 text-gray-400 font-mono text-xs">
+                    {{ job.tokens }}
+                </td>
+                <td class="py-2 px-3 text-gray-400 font-mono text-xs">
+                    ${{ job.monthly_cost }}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="py-8 text-center text-gray-500">
+                    No cron jobs found
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

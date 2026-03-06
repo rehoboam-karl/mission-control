@@ -1,4 +1,4 @@
-"""Cron Costs Service - Cost projections for cron jobs"""
+"""Cron Costs Service - Get cron jobs from openclaw CLI"""
 
 import json
 import subprocess
@@ -11,83 +11,93 @@ MODEL_COSTS = {
     "claude-sonnet-4-5-20250929": {"input": 3.0, "output": 15.0},
 }
 
-# Frequências mensais aproximadas
-FREQ_MONTHLY = {
-    "0 * * * *": 720,
-    "*/15 * * * *": 2880,
-    "0 7 * * *": 30,
-    "30 6 * * *": 30,
-    "0 8 * * *": 30,
-    "0 8 * * 1-5": 22,
-    "0 9 * * 1,3,5": 13,
-    "0 9 * * 2,4": 9,
-    "0 9 * * 1": 4,
-    "0 10 * * 0": 4,
-    "0 12 * * 6": 4,
-    "0 9 1-7 * 1": 1,
-    "0 8 1 * *": 1,
-}
+def get_cron_jobs():
+    """Get cron jobs from openclaw CLI"""
+    try:
+        result = subprocess.run(
+            ["openclaw", "cron", "list", "--json"],
+            capture_output=True, text=True, timeout=30
+        )
+        if result.returncode == 0:
+            data = json.loads(result.stdout)
+            return data.get("jobs", [])
+    except Exception as e:
+        print(f"Error getting cron jobs: {e}")
+    
+    return []
 
-def get_cron_costs():
-    """Get cron list with cost projections."""
-    # Get from event logs (more reliable)
-    return get_cron_from_logs()
-
-def get_cron_from_logs():
-    """Get cron data from event logs"""
+def get_cron_with_stats():
+    """Get cron jobs with execution stats from logs"""
+    jobs = get_cron_jobs()
+    
+    # Get stats from event logs
     from services.event_parser import get_recent_events
+    events = get_recent_events(limit=500)
     
-    events = get_recent_events(limit=200)
-    jobs = {}
-    
+    # Aggregate stats by job name/id
+    job_stats = {}
     for e in events:
         name = e.get("name", "unknown")
-        if name not in jobs:
-            jobs[name] = {"runs": 0, "tokens": 0, "ok": 0, "error": 0, "model": e.get("model", "MiniMax-M2.5")}
-        jobs[name]["runs"] += 1
-        jobs[name]["tokens"] += e.get("tokens", 0)
+        if name not in job_stats:
+            job_stats[name] = {"runs": 0, "tokens": 0, "ok": 0, "error": 0}
+        job_stats[name]["runs"] += 1
+        job_stats[name]["tokens"] += e.get("tokens", 0)
         if e.get("status") == "ok":
-            jobs[name]["ok"] += 1
+            job_stats[name]["ok"] += 1
         else:
-            jobs[name]["error"] += 1
+            job_stats[name]["error"] += 1
     
-    result = []
-    for name, data in jobs.items():
-        # Estimate cost
-        model_key = data.get("model", "MiniMax-M2.5")
-        if "/" in model_key:
-            model_key = model_key.split("/")[-1]
+    # Enrich jobs with stats
+    enriched_jobs = []
+    for job in jobs:
+        job_id = job.get("id", "")
+        job_name = job.get("name", job_id[:8])
+        agent = job.get("agentId", "main")
         
+        # Find matching stats
+        stats = job_stats.get(job_id, {})
+        
+        # Get model from payload
+        model = "MiniMax-M2.5"
+        payload = job.get("payload", {})
+        if payload.get("model"):
+            model = payload["model"].split("/")[-1]
+        
+        # Calculate cost
+        tokens = stats.get("tokens", 0)
+        if tokens == 0:
+            tokens = 15000  # Estimate
+        
+        model_key = model
         costs = MODEL_COSTS.get(model_key, {"input": 15.0, "output": 60.0})
-        tokens = data["tokens"] / max(data["runs"], 1)
+        cost = (tokens / 1_000_000) * (costs["input"] + costs["output"])
         
-        input_tokens = tokens * 0.8
-        output_tokens = tokens * 0.2
-        cost = (
-            (input_tokens * costs["input"] / 1_000_000) +
-            (output_tokens * costs["output"] / 1_000_000)
-        )
-        
-        result.append({
-            "name": name,
-            "runs": data["runs"],
-            "tokens": data["tokens"],
-            "cost_per_run": round(cost, 4),
-            "monthly_runs": 30,
+        enriched_jobs.append({
+            "id": job_id,
+            "name": job_name,
+            "agent": agent,
+            "model": model,
+            "schedule": job.get("schedule", {}).get("expr", "?"),
+            "enabled": job.get("enabled", True),
+            "status": "active" if job.get("enabled") else "disabled",
+            "runs": stats.get("runs", 0),
+            "tokens": stats.get("tokens", 0),
+            "ok": stats.get("ok", 0),
+            "error": stats.get("error", 0),
             "monthly_cost": round(cost * 30, 2),
-            "status": "ok" if data["error"] == 0 else "error"
+            "next_run": job.get("state", {}).get("nextRunAtMs"),
         })
     
-    return result
+    return enriched_jobs
 
 def get_cron_stats():
     """Get cron job statistics"""
-    crons = get_cron_costs()
+    jobs = get_cron_with_stats()
     
     return {
-        "total_jobs": len(crons),
-        "active_jobs": len([c for c in crons if c.get("status") == "ok"]),
-        "disabled_jobs": len([c for c in crons if c.get("status") == "error"]),
-        "total_monthly_cost": sum(c.get("monthly_cost", 0) for c in crons),
-        "jobs": crons
+        "total_jobs": len(jobs),
+        "active_jobs": len([j for j in jobs if j.get("status") == "active"]),
+        "disabled_jobs": len([j for j in jobs if j.get("status") == "disabled"]),
+        "total_monthly_cost": sum(j.get("monthly_cost", 0) for j in jobs),
+        "jobs": jobs
     }
