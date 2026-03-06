@@ -11,23 +11,26 @@
         <div class="flex gap-4 mt-4">
             <div class="flex items-center gap-2">
                 <span class="text-gray-400">Filter:</span>
-                <select class="bg-brand-black border border-brand-border rounded px-3 py-1 text-sm"
+                <select id="hours-filter" 
+                        class="bg-brand-black border border-brand-border rounded px-3 py-1 text-sm"
                         hx-get="/events/partial"
                         hx-trigger="change"
+                        hx-target="#events-container"
+                        hx-swap="innerHTML"
                         name="hours">
-                    <option value="1" {% if hours == 1 %}selected{% endif %}>Last hour</option>
-                    <option value="6" {% if hours == 6 %}selected{% endif %}>Last 6 hours</option>
-                    <option value="24" {% if hours == 24 %}selected{% endif %}>Last 24 hours</option>
-                    <option value="168" {% if hours == 168 %}selected{% endif %}>Last week</option>
+                    <option value="1">Last hour</option>
+                    <option value="6">Last 6 hours</option>
+                    <option value="24" selected>Last 24 hours</option>
+                    <option value="168">Last week</option>
                 </select>
             </div>
         </div>
     </div>
     
     <!-- Events List -->
-    <div class="glass rounded-xl p-6 border border-brand-border"
-         hx-get="/events/partial?hours={{ hours|default(24) }}" 
-         hx-trigger="every 10s"
+    <div id="events-container" class="glass rounded-xl p-6 border border-brand-border"
+         hx-get="/events/partial?hours=24" 
+         hx-trigger="load, every 10s"
          hx-swap="innerHTML">
         {% include "partials/event_feed.html" %}
     </div>
