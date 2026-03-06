@@ -1,29 +1,30 @@
 <!-- Alerts Partial -->
-<div class="space-y-2 text-sm">
+<div class="space-y-2">
     {% if commitments %}
-    <div class="flex items-center gap-2 text-yellow-400">
-        <span>⚠️</span>
-        <span>Commitments vencendo: {{ commitments }}</span>
+    <div class="flex items-center gap-2 p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-yellow-400"></i>
+        <span class="text-yellow-400 text-sm">Commitments: {{ commitments }}</span>
     </div>
     {% endif %}
     
     {% if cooling %}
-    <div class="flex items-center gap-2 text-blue-400">
-        <span>❄️</span>
-        <span>Relationships cooling: {{ cooling }}</span>
+    <div class="flex items-center gap-2 p-2 bg-blue-500/10 rounded-lg border border-blue-500/30">
+        <i data-lucide="snowflake" class="w-4 h-4 text-blue-400"></i>
+        <span class="text-blue-400 text-sm">Cooling: {{ cooling }}</span>
     </div>
     {% endif %}
     
     {% if overdue %}
-    <div class="flex items-center gap-2 text-red-400">
-        <span>🔴</span>
-        <span>Overdue tasks: {{ overdue }}</span>
+    <div class="flex items-center gap-2 p-2 bg-red-500/10 rounded-lg border border-red-500/30">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-red-400"></i>
+        <span class="text-red-400 text-sm">Overdue: {{ overdue }}</span>
     </div>
     {% endif %}
     
     {% if not commitments and not cooling and not overdue %}
-    <div class="text-green-400 text-center py-2">
-        <i class="fas fa-check mr-1"></i> Tudo OK
+    <div class="flex items-center gap-2 p-2 bg-green-500/10 rounded-lg border border-green-500/30 justify-center">
+        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+        <span class="text-green-400 text-sm">Tudo OK</span>
     </div>
     {% endif %}
 </div>

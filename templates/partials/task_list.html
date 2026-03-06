@@ -1,22 +1,25 @@
 <!-- Task List Partial -->
-<div class="space-y-1">
-    {% for task in tasks %}
-    <div class="flex items-center gap-2 text-sm p-1 hover:bg-bg/50 rounded">
-        {% if task.priority == 4 %}
-        <span class="text-red-400 font-medium">[DEBITO]</span>
-        {% elif task.priority == 3 %}
-        <span class="text-yellow-400 font-medium">[CREDITO]</span>
-        {% elif task.priority == 2 %}
-        <span class="text-blue-400 font-medium">[MENTAL]</span>
-        {% else %}
-        <span class="text-gray-500">[ ]</span>
-        {% endif %}
-        <span class="truncate">{{ task.content }}</span>
-    </div>
+<div class="space-y-2">
+{% for task in tasks %}
+<div class="flex items-center gap-3 p-2 bg-brand-black/50 rounded-lg border border-brand-border hover:border-brand-accent/30 transition">
+    {% if task.priority == 4 %}
+    <span class="text-red-400"><i data-lucide="alert-circle" class="w-4 h-4"></i></span>
+    <span class="text-red-400 font-medium text-xs">[DEBITO]</span>
+    {% elif task.priority == 3 %}
+    <span class="text-yellow-400"><i data-lucide="credit-card" class="w-4 h-4"></i></span>
+    <span class="text-yellow-400 font-medium text-xs">[CREDITO]</span>
+    {% elif task.priority == 2 %}
+    <span class="text-blue-400"><i data-lucide="brain" class="w-4 h-4"></i></span>
+    <span class="text-blue-400 font-medium text-xs">[MENTAL]</span>
     {% else %}
-    <div class="text-center text-gray-500 py-4 text-sm">
-        <i class="fas fa-check-circle text-2xl mb-2"></i>
-        <p>Nenhuma task hoje</p>
-    </div>
-    {% endfor %}
+    <span class="text-gray-500"><i data-lucide="circle" class="w-4 h-4"></i></span>
+    {% endif %}
+    <span class="text-sm truncate flex-1">{{ task.content }}</span>
+</div>
+{% else %}
+<div class="text-center text-gray-500 py-8">
+    <i data-lucide="check-circle" class="w-8 h-8 mx-auto mb-2 text-green-500"></i>
+    <p>Nenhuma task hoje</p>
+</div>
+{% endfor %}
 </div>

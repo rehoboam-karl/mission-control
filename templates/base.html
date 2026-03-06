@@ -4,53 +4,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mission Control — Rehoboam</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://rsms.me">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        bg: '#0f172a',
-                        surface: '#1e293b',
-                        border: '#334155',
-                        accent: '#3b82f6',
+                        brand: {
+                            black: '#020617',
+                            card: '#0f172a',
+                            border: '#1e293b',
+                            accent: '#38bdf8',
+                            success: '#22c55e',
+                            warning: '#f59e0b',
+                            danger: '#ef4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     }
                 }
             }
         }
     </script>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        body { background-color: #0f172a; }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        body { 
+            background-color: #020617; 
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             display: inline-block;
         }
-        .status-active, .status-running { background-color: #22c55e; }
-        .status-idle, .status-pending { background-color: #eab308; }
-        .status-error, .status-failed { background-color: #ef4444; }
-        .status-unknown { background-color: #6b7280; }
+        .status-active, .status-green { background-color: #22c55e; }
+        .status-idle, .status-yellow { background-color: #f59e0b; }
+        .status-error, .status-red { background-color: #ef4444; }
+        .status-unknown, .status-gray { background-color: #6b7280; }
+        
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(30, 41, 59, 0.5);
+        }
+        
+        .cyber-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(2, 6, 23, 0.9) 100%);
+            border: 1px solid #1e293b;
+            transition: all 0.3s ease;
+        }
+        
+        .cyber-card:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .status-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        
+        .glow-green { box-shadow: 0 0 10px rgba(34, 197, 94, 0.3); }
+        .glow-yellow { box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+        .glow-red { box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
     </style>
 </head>
-<body class="bg-bg text-gray-200 min-h-screen">
+<body class="bg-brand-black text-gray-200 min-h-screen">
     <!-- Nav -->
-    <nav class="bg-surface border-b border-border px-6 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <span class="text-2xl">🔮</span>
-            <span class="text-lg font-semibold">Mission Control</span>
-            <span class="text-xs text-gray-500">— Rehoboam</span>
-        </div>
-        <div class="flex gap-4 text-sm">
-            <a href="/" class="hover:text-accent">Dashboard</a>
-            <a href="/agents" class="hover:text-accent">Agents</a>
-            <a href="/events" class="hover:text-accent">Events</a>
-            <a href="/crons" class="hover:text-accent">Crons</a>
-            <a href="/tasks" class="hover:text-accent">Tasks</a>
-            <a href="/standup" class="hover:text-accent">Standup</a>
-            <a href="/shared" class="hover:text-accent">Context</a>
+    <nav class="glass border-b border-brand-border sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-brand-accent/10 rounded-lg">
+                    <i data-lucide="radar" class="text-brand-accent w-5 h-5"></i>
+                </div>
+                <span class="text-lg font-semibold">Mission Control</span>
+                <span class="text-xs text-gray-500">— Rehoboam</span>
+            </div>
+            <div class="flex gap-4 text-sm">
+                <a href="/" class="hover:text-brand-accent transition flex items-center gap-2">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="/agents" class="hover:text-brand-accent transition flex items-center gap-2">
+                    <i data-lucide="bot" class="w-4 h-4"></i> Agents
+                </a>
+                <a href="/events" class="hover:text-brand-accent transition flex items-center gap-2">
+                    <i data-lucide="activity" class="w-4 h-4"></i> Events
+                </a>
+                <a href="/crons" class="hover:text-brand-accent transition flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4"></i> Crons
+                </a>
+                <a href="/tasks" class="hover:text-brand-accent transition flex items-center gap-2">
+                    <i data-lucide="check-square" class="w-4 h-4"></i> Tasks
+                </a>
+                <a href="/standup" class="hover:text-brand-accent transition flex items-center gap-2">
+                    <i data-lucide="clipboard-list" class="w-4 h-4"></i> Standup
+                </a>
+                <a href="/shared" class="hover:text-brand-accent transition flex items-center gap-2">
+                    <i data-lucide="folder-open" class="w-4 h-4"></i> Context
+                </a>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-500">v4.0</span>
+            </div>
         </div>
     </nav>
 
@@ -60,8 +146,13 @@
     </main>
 
     <!-- Footer -->
-    <footer class="text-center text-xs text-gray-500 py-4">
+    <footer class="text-center text-xs text-gray-500 py-4 border-t border-brand-border">
         Rehoboam Mission Control — {{ agent_count }} agents · {{ cron_count }} crons
     </footer>
+    
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
 </body>
 </html>

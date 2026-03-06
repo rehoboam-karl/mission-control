@@ -1,30 +1,30 @@
 <!-- Cron Table Partial -->
 <table class="w-full text-sm">
     <thead>
-        <tr class="text-gray-500 border-b border-gray-700">
+        <tr class="text-gray-500 border-b border-brand-border">
             <th class="text-left py-2">Job</th>
             <th class="text-left py-2">Status</th>
             <th class="text-left py-2">Runs</th>
-            <th class="text-left py-2">Tokens</th>
-            <th class="text-left py-2">Last Run</th>
+            <th class="text-left py-2">Cost</th>
         </tr>
     </thead>
     <tbody>
-        {% for job in cron_stats.jobs %}
-        <tr class="border-b border-gray-800 hover:bg-gray-800/50">
-            <td class="py-2 font-mono text-xs truncate max-w-[200px]">{{ job.name }}</td>
+        {% for job in cron_stats.jobs[:15] %}
+        <tr class="border-b border-brand-border/50 hover:bg-brand-black/30">
+            <td class="py-2 font-mono text-xs truncate max-w-[180px]">{{ job.name[:30] }}</td>
             <td class="py-2">
-                <span class="status-dot status-{% if job.status == 'active' %}active{% else %}error{% endif %}"></span>
+                {% if job.status == 'ok' or job.status == 'active' %}
+                <span class="status-dot status-green"></span>
+                {% else %}
+                <span class="status-dot status-red"></span>
+                {% endif %}
             </td>
             <td class="py-2 text-gray-400">{{ job.runs }}</td>
-            <td class="py-2 text-gray-400">{{ job.tokens }}</td>
-            <td class="py-2 text-gray-500 text-xs">
-                {% if job.last_run %}{{ job.last_run }}{% else %}Never{% endif %}
-            </td>
+            <td class="py-2 text-gray-400 font-mono text-xs">${{ job.monthly_cost|default(0)|round(2) }}/mo</td>
         </tr>
         {% else %}
         <tr>
-            <td colspan="5" class="py-8 text-center text-gray-500">
+            <td colspan="4" class="py-8 text-center text-gray-500">
                 No cron jobs found
             </td>
         </tr>
