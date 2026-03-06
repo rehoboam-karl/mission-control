@@ -1,0 +1,279 @@
+/* Mission Control Dashboard - Custom Styles */
+
+:root {
+    --primary-color: #0d6efd;
+    --success-color: #198754;
+    --info-color: #0dcaf0;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Pulse animation for online indicator */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Activity Feed Styles */
+.activity-group {
+    margin-bottom: 1.5rem;
+}
+
+.activity-date-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.activity-date-header::before,
+.activity-date-header::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.activity-date-header:not(:empty)::before {
+    margin-right: 0.5rem;
+}
+
+.activity-date-header:not(:empty)::after {
+    margin-left: 0.5rem;
+}
+
+.activity-item {
+    display: flex;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-left: 3px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+}
+
+.activity-item:hover {
+    background: #e9ecef;
+    border-left-color: var(--primary-color);
+    transform: translateX(2px);
+}
+
+.activity-item.tool_call {
+    border-left-color: var(--primary-color);
+}
+
+.activity-item.file_change {
+    border-left-color: var(--success-color);
+}
+
+.activity-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+
+.activity-icon.tool_call {
+    background: rgba(13, 110, 253, 0.1);
+    color: var(--primary-color);
+}
+
+.activity-icon.file_change {
+    background: rgba(25, 135, 84, 0.1);
+    color: var(--success-color);
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.25rem;
+}
+
+.activity-description {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.activity-time {
+    font-size: 0.75rem;
+    color: #adb5bd;
+}
+
+/* Calendar Styles */
+.calendar-week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.calendar-day {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    min-height: 120px;
+}
+
+.calendar-day-header {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.calendar-day.today .calendar-day-header {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.calendar-event {
+    background: white;
+    border-left: 3px solid var(--success-color);
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calendar-event:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.calendar-event-time {
+    font-weight: 600;
+    color: var(--success-color);
+    margin-bottom: 0.25rem;
+}
+
+.calendar-event-title {
+    color: #495057;
+}
+
+/* Search Results */
+.search-result-item {
+    padding: 1rem;
+    border-left: 3px solid #dee2e6;
+    margin-bottom: 1rem;
+    background: #f8f9fa;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+}
+
+.search-result-item:hover {
+    background: white;
+    border-left-color: var(--info-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.search-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.search-result-title {
+    font-weight: 600;
+    color: #212529;
+    display: flex;
+    align-items: center;
+}
+
+.search-result-badge {
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+}
+
+.search-result-preview {
+    font-size: 0.875rem;
+    color: #6c757d;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    font-family: 'Monaco', 'Courier New', monospace;
+    white-space: pre-wrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 100px;
+}
+
+.search-highlight {
+    background: yellow;
+    padding: 0 0.25rem;
+}
+
+/* Stats */
+.stat-box {
+    padding: 0.5rem;
+}
+
+.stat-box h3 {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.stat-box small {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .calendar-week {
+        grid-template-columns: 1fr;
+    }
+    
+    .activity-item {
+        flex-direction: column;
+    }
+    
+    .activity-icon {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
