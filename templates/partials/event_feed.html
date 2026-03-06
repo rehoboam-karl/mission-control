@@ -1,0 +1,28 @@
+<!-- Event Feed Partial -->
+<div class="space-y-2 max-h-96 overflow-y-auto">
+    {% for event in events %}
+    <div class="flex items-start gap-3 p-2 rounded hover:bg-gray-800/50">
+        <span class="text-gray-500 text-xs font-mono mt-1">
+            {% if event.timestamp %}
+                {{ event.timestamp[11:19] }}
+            {% else %}
+                --
+            {% endif %}
+        </span>
+        
+        <span class="status-dot status-{% if event.level == 'error' %}error{% elif event.level == 'warning' %}idle{% else %}unknown{% endif %} mt-1"></span>
+        
+        <div class="flex-1 min-w-0">
+            <p class="text-sm truncate">{{ event.message or event.type }}</p>
+            {% if event.type %}
+            <p class="text-xs text-gray-500">{{ event.type }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center text-gray-500 py-8">
+        <i class="fas fa-inbox text-3xl mb-2 opacity-50"></i>
+        <p>No recent events</p>
+    </div>
+    {% endfor %}
+</div>

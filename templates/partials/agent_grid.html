@@ -1,0 +1,21 @@
+<!-- Agent Grid Partial -->
+{% for agent in agents %}
+<div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
+    <div class="flex items-center justify-between mb-2">
+        <span class="font-mono text-sm font-medium">{{ agent.name }}</span>
+        <span class="status-dot status-{{ agent.status }}"></span>
+    </div>
+    <div class="text-xs text-gray-500">
+        {% if agent.last_seen %}
+        {{ agent.last_seen[:19] }}
+        {% else %}
+        No activity
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="col-span-3 text-center text-gray-500 py-8">
+    <i class="fas fa-robot text-4xl mb-4 opacity-50"></i>
+    <p>No agents found</p>
+</div>
+{% endfor %}

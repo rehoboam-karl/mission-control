@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title|default("Mission Control v4") }}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gray: {
+                            750: '#2d3748',
+                            850: '#1a202c',
+                            950: '#0d1117',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #e6edf3;
+        }
+        .card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+        .nav-link {
+            color: #8b949e;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .nav-link:hover, .nav-link.htmx-request {
+            color: #e6edf3;
+            background-color: #21262d;
+        }
+        .nav-link.active {
+            color: #58a6ff;
+            background-color: #21262d;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-active { background-color: #3fb950; }
+        .status-idle { background-color: #d29922; }
+        .status-error { background-color: #f85149; }
+        .status-unknown { background-color: #8b949e; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="border-b border-gray-700 bg-gray-900/50 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-14">
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-xl font-bold text-blue-400">
+                        <i class="fas fa-rocket mr-2"></i>Mission Control
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-1">
+                    <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
+                        <i class="fas fa-th-large w-5"></i>
+                    </a>
+                    <a href="/agents" class="nav-link {% if '/agents' in request.url.path %}active{% endif %}">
+                        <i class="fas fa-robot w-5"></i>
+                    </a>
+                    <a href="/events" class="nav-link {% if '/events' in request.url.path %}active{% endif %}">
+                        <i class="fas fa-stream w-5"></i>
+                    </a>
+                    <a href="/crons" class="nav-link {% if '/crons' in request.url.path %}active{% endif %}">
+                        <i class="fas fa-clock w-5"></i>
+                    </a>
+                    <a href="/standup" class="nav-link {% if '/standup' in request.url.path %}active{% endif %}">
+                        <i class="fas fa-clipboard-list w-5"></i>
+                    </a>
+                    <a href="/shared" class="nav-link {% if '/shared' in request.url.path %}active{% endif %}">
+                        <i class="fas fa-folder-open w-5"></i>
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs text-gray-500">v4.0</span>
+                    <button class="p-2 text-gray-400 hover:text-white">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="border-t border-gray-700 py-4 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
+            Mission Control v4 • FastAPI + HTMX + Tailwind
+        </div>
+    </footer>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">
+            <i class="fas fa-clipboard-list mr-2 text-yellow-400"></i>Daily Standup
+        </h1>
+        <span class="text-gray-500">{{ today_date }}</span>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card p-4">
+            <div class="text-3xl font-bold text-blue-400">{{ agents|length }}</div>
+            <div class="text-gray-400 text-sm">Total Agents</div>
+        </div>
+        <div class="card p-4">
+            <div class="text-3xl font-bold text-green-400">{{ event_summary.total }}</div>
+            <div class="text-gray-400 text-sm">Events Today</div>
+        </div>
+        <div class="card p-4">
+            <div class="text-3xl font-bold {% if event_summary.errors > 0 %}text-red-400{% else %}text-green-400{% endif %}">
+                {{ event_summary.errors }}
+            </div>
+            <div class="text-gray-400 text-sm">Errors</div>
+        </div>
+    </div>
+    
+    <!-- Agent Status -->
+    <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">Agent Status</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {% for agent in agents %}
+            <div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-sm">{{ agent.name }}</span>
+                    <span class="status-dot status-{{ agent.status }}"></span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

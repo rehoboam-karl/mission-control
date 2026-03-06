@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card p-6">
+    <h1 class="text-2xl font-bold mb-6">
+        <i class="fas fa-robot mr-2 text-blue-400"></i>Agent Status
+    </h1>
+    
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+         hx-get="/agents/partial" 
+         hx-trigger="every 30s"
+         hx-swap="innerHTML">
+        {% include "partials/agent_grid.html" %}
+    </div>
+</div>
+{% endblock %}

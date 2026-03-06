@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">
+            <i class="fas fa-clock mr-2 text-purple-400"></i>Cron Jobs
+        </h1>
+        
+        <div class="flex items-center gap-4 text-sm">
+            <span class="text-green-400">{{ cron_stats.active_jobs }} active</span>
+            <span class="text-gray-500">{{ cron_stats.disabled_jobs }} disabled</span>
+        </div>
+    </div>
+    
+    <div hx-get="/crons/partial" 
+         hx-trigger="every 60s"
+         hx-swap="innerHTML">
+        {% include "partials/cron_table.html" %}
+    </div>
+</div>
+{% endblock %}

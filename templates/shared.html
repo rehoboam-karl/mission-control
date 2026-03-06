@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card p-6">
+    <h1 class="text-2xl font-bold mb-6">
+        <i class="fas fa-folder-open mr-2 text-orange-400"></i>Shared Context
+    </h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for ctx in contexts %}
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700 hover:border-gray-600 cursor-pointer"
+             hx-get="/shared/{{ ctx.name }}"
+             hx-target="#editor-panel"
+             hx-swap="innerHTML">
+            <div class="flex items-center justify-between mb-2">
+                <span class="font-semibold">{{ ctx.name }}</span>
+                <span class="text-xs text-gray-500">{{ ctx.type }}</span>
+            </div>
+            <p class="text-sm text-gray-400 line-clamp-3">{{ ctx.content }}</p>
+        </div>
+        {% else %}
+        <div class="col-span-3 text-center text-gray-500 py-8">
+            <i class="fas fa-folder-open text-4xl mb-4 opacity-50"></i>
+            <p>No shared contexts found</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Editor Panel -->
+    <div id="editor-panel" class="mt-6"></div>
+</div>
+{% endblock %}

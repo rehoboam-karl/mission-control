@@ -1,0 +1,21 @@
+<!-- Context Editor Partial -->
+{% if context %}
+<form method="POST" action="/shared/{{ context.name }}" class="mt-4">
+    <input type="hidden" name="ext" value=".{{ context.type }}">
+    
+    <div class="flex items-center justify-between mb-2">
+        <span class="font-semibold">Editing: {{ context.name }}.{{ context.type }}</span>
+        <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-1 rounded text-sm">
+            <i class="fas fa-save mr-1"></i>Save
+        </button>
+    </div>
+    
+    <textarea name="content" 
+              class="w-full h-64 bg-gray-800 border border-gray-700 rounded p-3 font-mono text-sm"
+    >{{ context.content }}</textarea>
+</form>
+{% else %}
+<div class="text-center text-gray-500 py-8">
+    <p>Select a context to edit</p>
+</div>
+{% endif %}
