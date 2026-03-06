@@ -1,19 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card p-6">
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold">
-            <i class="fas fa-clock mr-2 text-purple-400"></i>Cron Jobs
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="glass rounded-xl p-6 border border-brand-border">
+        <h1 class="text-2xl font-bold flex items-center gap-3">
+            <i data-lucide="clock" class="w-7 h-7 text-brand-accent"></i>
+            Cron Jobs
         </h1>
-        
-        <div class="flex items-center gap-4 text-sm">
-            <span class="text-green-400">{{ cron_stats.active_jobs }} active</span>
-            <span class="text-gray-500">{{ cron_stats.disabled_jobs }} disabled</span>
+        <div class="flex gap-4 mt-4 text-sm">
+            <div class="flex items-center gap-2">
+                <span class="text-green-400">✓</span>
+                <span>{{ cron_stats.active_jobs }} active</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-red-400">✗</span>
+                <span>{{ cron_stats.disabled_jobs }} errors</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-brand-accent">$</span>
+                <span>{{ cron_stats.total_monthly_cost|default(0)|round(2) }}/month</span>
+            </div>
         </div>
     </div>
     
-    <div hx-get="/crons/partial" 
+    <!-- Cron Table -->
+    <div class="glass rounded-xl p-6 border border-brand-border"
+         hx-get="/crons/partial" 
          hx-trigger="every 60s"
          hx-swap="innerHTML">
         {% include "partials/cron_table.html" %}

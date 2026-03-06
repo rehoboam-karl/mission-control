@@ -1,16 +1,67 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card p-6">
-    <h1 class="text-2xl font-bold mb-6">
-        <i class="fas fa-robot mr-2 text-blue-400"></i>Agent Status
-    </h1>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="glass rounded-xl p-6 border border-brand-border">
+        <h1 class="text-2xl font-bold flex items-center gap-3">
+            <i data-lucide="bot" class="w-7 h-7 text-brand-accent"></i>
+            Agents
+        </h1>
+        <p class="text-gray-400 mt-2">{{ agents|length }} agentes configurados</p>
+    </div>
     
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+    <!-- Agents Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
          hx-get="/agents/partial" 
          hx-trigger="every 30s"
          hx-swap="innerHTML">
         {% include "partials/agent_grid.html" %}
+    </div>
+    
+    <!-- Agent Details -->
+    <div class="glass rounded-xl p-6 border border-brand-border">
+        <h2 class="text-lg font-semibold mb-4">Agent Details</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-gray-500 border-b border-brand-border">
+                        <th class="text-left py-2">Agent</th>
+                        <th class="text-left py-2">Status</th>
+                        <th class="text-left py-2">Model</th>
+                        <th class="text-left py-2">Last Active</th>
+                        <th class="text-left py-2">Sessions</th>
+                        <th class="text-left py-2">Active Task</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agent in agents %}
+                    <tr class="border-b border-brand-border/50 hover:bg-brand-black/30">
+                        <td class="py-2">
+                            <div class="flex items-center gap-2">
+                                <span>{{ agent.emoji }}</span>
+                                <span class="font-medium">{{ agent.name }}</span>
+                            </div>
+                        </td>
+                        <td class="py-2">
+                            <span class="status-dot status-{{ agent.status_color }}"></span>
+                            <span class="ml-2">{{ agent.status }}</span>
+                        </td>
+                        <td class="py-2 font-mono text-xs">{{ agent.model }}</td>
+                        <td class="py-2 text-gray-400">{{ agent.last_active }}</td>
+                        <td class="py-2 text-gray-400">{{ agent.sessions }}</td>
+                        <td class="py-2">
+                            {% if agent.has_active_task %}
+                            <span class="text-green-400">✓</span>
+                            {% else %}
+                            <span class="text-gray-600">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
