@@ -1,18 +1,20 @@
 <!-- Agent Grid Partial -->
+<!-- hx-get="/api/agents" hx-trigger="every 30s" hx-swap="innerHTML" -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 {% for agent in agents %}
-<div class="flex items-center justify-between bg-bg p-2 rounded border border-border">
-    <div class="flex items-center gap-2">
-        <span class="text-lg">{{ agent.emoji }}</span>
-        <div class="flex flex-col">
-            <span class="text-sm font-mono">{{ agent.name }}</span>
-            <span class="text-xs text-gray-500">{{ agent.model }}</span>
+<div class="bg-surface rounded-lg border border-border p-4 hover:border-accent transition">
+    <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+            <span class="text-xl">{{ agent.emoji }}</span>
+            <span class="font-medium">{{ agent.name }}</span>
         </div>
+        <span class="text-lg">{{ agent.status_icon }}</span>
     </div>
-    <div class="flex items-center gap-2">
-        <span class="text-xs text-gray-500">{{ agent.last_active }}</span>
-        <span class="status-dot status-{{ agent.status_color }}"></span>
+    <div class="text-xs text-gray-400 space-y-1">
+        <div>Model: <span class="text-gray-300">{{ agent.model }}</span></div>
+        <div>Last: <span class="text-gray-300">{{ agent.last_active }}</span></div>
+        <div>Sessions: <span class="text-gray-300">{{ agent.sessions }}</span></div>
     </div>
 </div>
-{% else %}
-<div class="text-center text-gray-500 py-4 text-sm">Nenhum agent encontrado</div>
 {% endfor %}
+</div>

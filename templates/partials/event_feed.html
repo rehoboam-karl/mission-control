@@ -1,31 +1,21 @@
 <!-- Event Feed Partial -->
-<div class="space-y-1 max-h-80 overflow-y-auto">
-    {% for event in events %}
-    <div class="flex items-center gap-3 text-sm p-1 hover:bg-bg/50 rounded">
-        <span class="text-gray-500 font-mono text-xs w-16">
-            {% if event.timestamp %}
-                {{ event.timestamp[11:16] }}
-            {% else %}
-                --:--
-            {% endif %}
-        </span>
-        
-        <span class="status-dot status-{% if event.level == 'error' %}error{% elif event.level == 'warning' %}idle{% else %}active{% endif %}"></span>
-        
-        <span class="text-gray-400">{{ event.agent_name or event.type }}</span>
-        
-        <span class="flex-1 truncate">{{ event.message or event.action or '' }}</span>
-        
-        <span class="text-xs {% if event.level == 'error' %}text-red-400{% elif event.level == 'warning' %}text-yellow-400{% else %}text-green-400{% endif %}">
-            {% if event.level == 'error' %}❌ error
-            {% elif event.level == 'warning' %}⚠️ warning
-            {% else %}✅ ok{% endif %}
-        </span>
+<!-- hx-get="/api/events" hx-trigger="every 10s" hx-swap="innerHTML" -->
+<div class="space-y-2">
+{% for event in events %}
+<div class="bg-surface rounded border border-border p-3 flex items-start gap-3">
+    <span class="text-lg mt-0.5">{{ event.icon }}</span>
+    <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+            <span class="text-sm font-medium">{{ event.name }}</span>
+            <span class="text-xs text-gray-500">{{ event.ago }}</span>
+        </div>
+        <div class="text-xs text-gray-400 mt-1 truncate">
+            {{ event.summary }}
+        </div>
+        <div class="text-xs text-gray-500 mt-1">
+            {{ event.agent }} · {{ event.model }} · {{ event.tokens }} tokens
+        </div>
     </div>
-    {% else %}
-    <div class="text-center text-gray-500 py-8">
-        <i class="fas fa-inbox text-2xl mb-2"></i>
-        <p>Nenhum evento recente</p>
-    </div>
-    {% endfor %}
+</div>
+{% endfor %}
 </div>

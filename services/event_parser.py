@@ -1,119 +1,64 @@
-"""Event Parser Service - Parse JSONL cron logs + gateway logs"""
+"""Event Parser Service - Parse cron JSONL logs into events."""
 
 import json
 from pathlib import Path
 from datetime import datetime, timedelta
-from config import OPENCLAW_HOME
 
-def get_gateway_log_path() -> Path:
-    """Get gateway log path"""
-    return OPENCLAW_HOME / "logs" / "gateway.log"
+OPENCLAW_HOME = Path.home() / ".openclaw"
 
-def get_cron_log_path() -> Path:
-    """Get cron log path"""
-    return OPENCLAW_HOME / "logs" / "cron.log"
-
-def parse_gateway_logs(limit: int = 100) -> list:
-    """Parse gateway logs for events"""
+def get_recent_events(limit=50):
+    """Parse cron run logs into events."""
     events = []
-    log_path = get_gateway_log_path()
-    
-    if not log_path.exists():
-        return events
-    
-    try:
-        with open(log_path, 'r') as f:
-            lines = f.readlines()
-        
-        for line in reversed(lines[-limit:]):
-            try:
-                data = json.loads(line)
-                events.append({
-                    'timestamp': data.get('timestamp', ''),
-                    'type': data.get('type', 'log'),
-                    'message': data.get('message', ''),
-                    'level': data.get('level', 'info')
-                })
-            except json.JSONDecodeError:
-                # Plain text log line
-                if line.strip():
-                    events.append({
-                        'timestamp': datetime.now().isoformat(),
-                        'type': 'log',
-                        'message': line.strip(),
-                        'level': 'info'
-                    })
-    except Exception as e:
-        events.append({
-            'timestamp': datetime.now().isoformat(),
-            'type': 'error',
-            'message': f'Failed to read logs: {e}',
-            'level': 'error'
-        })
-    
-    return events
 
-def parse_cron_events(limit: int = 50) -> list:
-    """Parse cron execution events"""
-    events = []
-    log_path = get_cron_log_path()
-    
-    if not log_path.exists():
-        return events
-    
-    try:
-        with open(log_path, 'r') as f:
-            lines = f.readlines()
-        
-        for line in reversed(lines[-limit:]):
+    # Parse cron JSONL logs
+    cron_dir = OPENCLAW_HOME / "cron"
+    if cron_dir.exists():
+        for jsonl_file in cron_dir.rglob("*.jsonl"):
             try:
-                data = json.loads(line)
-                events.append({
-                    'timestamp': data.get('timestamp', ''),
-                    'job': data.get('job', 'unknown'),
-                    'status': data.get('status', 'unknown'),
-                    'duration': data.get('duration', 0),
-                    'error': data.get('error', '')
-                })
-            except:
+                with open(jsonl_file) as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        try:
+                            entry = json.loads(line)
+                            if entry.get("action") == "finished":
+                                # Calculate ago
+                                ts = entry.get("ts", 0)
+                                if ts:
+                                    try:
+                                        dt = datetime.fromtimestamp(ts / 1000)
+                                        now = datetime.now()
+                                        minutes_ago = (now - dt).total_seconds() / 60
+                                        if minutes_ago < 60:
+                                            ago = f"{int(minutes_ago)}m ago"
+                                        elif minutes_ago < 1440:
+                                            ago = f"{int(minutes_ago/60)}h ago"
+                                        else:
+                                            ago = f"{int(minutes_ago/1440)}d ago"
+                                    except:
+                                        ago = "unknown"
+                                else:
+                                    ago = "unknown"
+                                
+                                events.append({
+                                    "timestamp": ts,
+                                    "type": "cron",
+                                    "agent": entry.get("agentId", "main"),
+                                    "name": entry.get("jobName", entry.get("jobId", "?")),
+                                    "status": entry.get("status", "?"),
+                                    "summary": entry.get("summary", "")[:100],
+                                    "model": entry.get("model", "?"),
+                                    "tokens": entry.get("usage", {}).get("total_tokens", 0),
+                                    "duration_ms": entry.get("durationMs", 0),
+                                    "icon": "✅" if entry.get("status") == "ok" else "❌",
+                                    "ago": ago,
+                                })
+                        except json.JSONDecodeError:
+                            pass
+            except Exception:
                 pass
-    
-    except Exception as e:
-        pass
-    
-    return events
 
-def get_recent_events(hours: int = 24, event_type: str = None) -> list:
-    """Get recent events from all sources"""
-    all_events = []
-    
-    # Gateway logs
-    all_events.extend(parse_gateway_logs(limit=200))
-    
-    # Cron logs
-    cron_events = parse_cron_events(limit=100)
-    for e in cron_events:
-        e['source'] = 'cron'
-        all_events.append(e)
-    
-    # Filter by type if specified
-    if event_type:
-        all_events = [e for e in all_events if e.get('type') == event_type]
-    
     # Sort by timestamp descending
-    all_events.sort(key=lambda x: x.get('timestamp', ''), reverse=True)
-    
-    # Limit to hours
-    cutoff = datetime.now() - timedelta(hours=hours)
-    filtered = []
-    for e in all_events:
-        ts = e.get('timestamp', '')
-        if ts:
-            try:
-                dt = datetime.fromisoformat(ts.replace('Z', '+00:00'))
-                if dt.replace(tzinfo=None) > cutoff:
-                    filtered.append(e)
-            except:
-                filtered.append(e)
-    
-    return filtered[:100]
+    events.sort(key=lambda x: x["timestamp"], reverse=True)
+    return events[:limit]
