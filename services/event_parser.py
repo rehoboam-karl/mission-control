@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 OPENCLAW_HOME = Path.home() / ".openclaw"
 
-def get_recent_events(limit=50):
+def get_recent_events(limit=50, hours=None):
     """Parse cron run logs into events."""
     events = []
 
@@ -61,4 +61,11 @@ def get_recent_events(limit=50):
 
     # Sort by timestamp descending
     events.sort(key=lambda x: x["timestamp"], reverse=True)
+    
+    # Filter by hours if specified
+    if hours:
+        cutoff = datetime.now() - timedelta(hours=hours)
+        events = [e for e in events if e.get("timestamp") and 
+                  datetime.fromtimestamp(e["timestamp"] / 1000) > cutoff]
+    
     return events[:limit]

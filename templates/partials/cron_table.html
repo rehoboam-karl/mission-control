@@ -2,30 +2,30 @@
 <table class="w-full text-sm">
     <thead>
         <tr class="text-gray-500 border-b border-gray-700">
-            <th class="text-left py-2">Name</th>
+            <th class="text-left py-2">Job</th>
             <th class="text-left py-2">Status</th>
+            <th class="text-left py-2">Runs</th>
+            <th class="text-left py-2">Tokens</th>
             <th class="text-left py-2">Last Run</th>
         </tr>
     </thead>
     <tbody>
         {% for job in cron_stats.jobs %}
         <tr class="border-b border-gray-800 hover:bg-gray-800/50">
-            <td class="py-2 font-mono">{{ job.name }}</td>
+            <td class="py-2 font-mono text-xs truncate max-w-[200px]">{{ job.name }}</td>
             <td class="py-2">
-                <span class="status-dot status-{{ 'active' if job.status == 'active' else 'idle' }}"></span>
+                <span class="status-dot status-{% if job.status == 'active' %}active{% else %}error{% endif %}"></span>
             </td>
-            <td class="py-2 text-gray-500">
-                {% if job.last_run %}
-                    {{ job.last_run[:19] }}
-                {% else %}
-                    Never
-                {% endif %}
+            <td class="py-2 text-gray-400">{{ job.runs }}</td>
+            <td class="py-2 text-gray-400">{{ job.tokens }}</td>
+            <td class="py-2 text-gray-500 text-xs">
+                {% if job.last_run %}{{ job.last_run }}{% else %}Never{% endif %}
             </td>
         </tr>
         {% else %}
         <tr>
-            <td colspan="3" class="py-8 text-center text-gray-500">
-                No cron jobs configured
+            <td colspan="5" class="py-8 text-center text-gray-500">
+                No cron jobs found
             </td>
         </tr>
         {% endfor %}
