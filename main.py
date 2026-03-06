@@ -2,6 +2,7 @@
 
 import os
 import asyncio
+import json
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -9,7 +10,7 @@ from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
 
 from db import init_db
-from routers import dashboard, agents, events, crons, standup, shared_context, api, tasks, outbox
+from routers import dashboard, agents, events, crons, standup, shared_context, api, tasks, outbox, relationships
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -35,6 +36,9 @@ templates = Jinja2Templates(
     directory=str(BASE_DIR / "templates"),
     auto_reload=True
 )
+
+# Add tojson filter
+templates.env.filters['tojson'] = lambda x: json.dumps(x)
 app.state.jinja = templates
 
 # Mount static files
@@ -51,6 +55,7 @@ app.include_router(standup.router)
 app.include_router(shared_context.router)
 app.include_router(tasks.router)
 app.include_router(outbox.router)
+app.include_router(relationships.router)
 app.include_router(api.router)
 
 # Development server

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="glass rounded-xl p-6 border border-brand-border">
+        <h1 class="text-2xl font-bold flex items-center gap-3">
+            <i data-lucide="users" class="w-7 h-7 text-brand-accent"></i>
+            Relationships
+        </h1>
+        <div class="flex gap-6 mt-4 text-sm">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                <span class="text-gray-400">Healthy (< 14 days)</span>
+                <span class="font-bold text-green-400">{{ relationships.stats.healthy }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                <span class="text-gray-400">Warming (14-30 days)</span>
+                <span class="font-bold text-yellow-400">{{ relationships.stats.warming }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                <span class="text-gray-400">Cold (> 30 days)</span>
+                <span class="font-bold text-red-400">{{ relationships.stats.cold }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Graph -->
+    <div class="glass rounded-xl p-6 border border-brand-border">
+        <div id="relationship-graph" class="h-[500px]"></div>
+    </div>
+    
+    <!-- List View -->
+    <div class="glass rounded-xl p-6 border border-brand-border">
+        <h2 class="text-lg font-semibold mb-4">People</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-gray-500 border-b border-brand-border">
+                        <th class="text-left py-2 px-3">Name</th>
+                        <th class="text-left py-2 px-3">Company</th>
+                        <th class="text-left py-2 px-3">Group</th>
+                        <th class="text-left py-2 px-3">Last Contact</th>
+                        <th class="text-left py-2 px-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for node in relationships.nodes %}
+                    <tr class="border-b border-brand-border/50 hover:bg-brand-black/30">
+                        <td class="py-2 px-3 font-medium">{{ node.name }}</td>
+                        <td class="py-2 px-3 text-gray-400">{{ node.company or '-' }}</td>
+                        <td class="py-2 px-3">
+                            <span class="px-2 py-0.5 text-xs rounded bg-brand-accent/20 text-brand-accent">
+                                {{ node.group or 'Ungrouped' }}
+                            </span>
+                        </td>
+                        <td class="py-2 px-3 text-gray-400">
+                            {% if node.days_ago is not none %}
+                                {{ node.days_ago }} days ago
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="py-2 px-3">
+                            {% if node.days_ago is none or node.days_ago < 14 %}
+                                <span class="text-green-400">● Healthy</span>
+                            {% elif node.days_ago < 30 %}
+                                <span class="text-yellow-400">● Warming</span>
+                            {% else %}
+                                <span class="text-red-400">● Cold</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- D3.js -->
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+<script>
+    const data = {{ relationships | tojson }};
+    
+    const width = document.getElementById('relationship-graph').clientWidth;
+    const height = 500;
+    
+    // Group nodes by group
+    const groups = {};
+    data.nodes.forEach(node => {
+        const g = node.group || 'Ungrouped';
+        if (!groups[g]) groups[g] = [];
+        groups[g].push(node);
+    });
+    
+    // Create links between people in same group
+    const links = [];
+    Object.values(groups).forEach(groupNodes => {
+        for (let i = 0; i < groupNodes.length; i++) {
+            for (let j = i + 1; j < groupNodes.length; j++) {
+                links.push({ source: groupNodes[i].id, target: groupNodes[j].id });
+            }
+        }
+    });
+    
+    // Simple force simulation
+    const nodes = data.nodes.map(d => ({...d}));
+    
+    // Create SVG
+    const svg = d3.select('#relationship-graph')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+    
+    // Force simulation
+    const simulation = d3.forceSimulation(nodes)
+        .force('link', d3.forceLink(links).id(d => d.id).distance(80))
+        .force('charge', d3.forceManyBody().strength(-200))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide().radius(30));
+    
+    // Draw links
+    const link = svg.append('g')
+        .selectAll('line')
+        .data(links)
+        .join('line')
+        .attr('stroke', '#334155')
+        .attr('stroke-width', 1)
+        .attr('stroke-opacity', 0.6);
+    
+    // Draw nodes
+    const node = svg.append('g')
+        .selectAll('g')
+        .data(nodes)
+        .join('g')
+        .call(d3.drag()
+            .on('start', dragstarted)
+            .on('drag', dragged)
+            .on('end', dragended));
+    
+    // Node circles
+    node.append('circle')
+        .attr('r', d => 8 + Math.min((d.days_ago || 0) / 10, 5))
+        .attr('fill', d => d.color)
+        .attr('stroke', '#1e293b')
+        .attr('stroke-width', 2);
+    
+    // Node labels
+    node.append('text')
+        .text(d => d.name.split(' ')[0])
+        .attr('x', 12)
+        .attr('y', 4)
+        .attr('fill', '#9ca3af')
+        .attr('font-size', '11px')
+        .attr('font-family', 'Inter, sans-serif');
+    
+    // Tooltip
+    node.append('title')
+        .text(d => `${d.name}\n${d.company || ''}\n${d.days_ago ? d.days_ago + ' days ago' : 'No contact'}`);
+    
+    simulation.on('tick', () => {
+        link
+            .attr('x1', d => d.source.x)
+            .attr('y1', d => d.source.y)
+            .attr('x2', d => d.target.x)
+            .attr('y2', d => d.target.y);
+        
+        node.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+    
+    function dragstarted(event) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        event.subject.fx = event.subject.x;
+        event.subject.fy = event.subject.y;
+    }
+    
+    function dragged(event) {
+        event.subject.fx = event.x;
+        event.subject.fy = event.y;
+    }
+    
+    function dragended(event) {
+        if (!event.active) simulation.alphaTarget(0);
+        event.subject.fx = null;
+        event.subject.fy = null;
+    }
+</script>
+{% endblock %}

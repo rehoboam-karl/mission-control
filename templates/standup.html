@@ -31,25 +31,10 @@
         </div>
     </div>
     
-    <!-- 7-Day Trend Chart -->
+    <!-- 7-Day Trend Chart (ApexCharts) -->
     <div class="glass rounded-xl p-6 border border-brand-border">
         <h2 class="text-lg font-semibold mb-4">7-Day Trend</h2>
-        <div class="grid grid-cols-7 gap-2">
-            {% for day in standup.trend %}
-            <div class="text-center">
-                <div class="text-xs text-gray-500 mb-1">{{ day.date[5:] }}</div>
-                <div class="h-16 flex flex-col justify-end gap-1">
-                    <div class="bg-green-500/50 rounded" style="height: {{ (day.ok / 10 * 40)|int }}px; min-height: 4px"></div>
-                    <div class="bg-red-500/50 rounded" style="height: {{ (day.error / 10 * 40)|int }}px; min-height: 4px"></div>
-                </div>
-                <div class="text-xs mt-1">{{ day.total }}</div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="flex gap-4 mt-4 text-xs">
-            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-green-500 rounded"></span> OK</span>
-            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-red-500 rounded"></span> Erro</span>
-        </div>
+        <div id="trend-chart" class="h-64"></div>
     </div>
     
     <!-- Today's Agents -->
@@ -76,4 +61,52 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Build chart data from template
+    const trendData = {{ standup.trend | tojson }};
+    
+    const dates = trendData.map(d => d.date.slice(5)); // MM-DD
+    const okData = trendData.map(d => d.ok);
+    const errorData = trendData.map(d => d.error);
+    
+    const options = {
+        chart: {
+            type: 'bar',
+            height: 250,
+            background: 'transparent',
+            toolbar: { show: false },
+            fontFamily: 'Inter, sans-serif'
+        },
+        series: [
+            { name: 'OK', data: okData },
+            { name: 'Erros', data: errorData }
+        ],
+        xaxis: {
+            categories: dates,
+            labels: { style: { colors: '#9ca3af' } }
+        },
+        yaxis: {
+            labels: { style: { colors: '#9ca3af' } }
+        },
+        colors: ['#22c55e', '#ef4444'],
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '60%',
+                borderRadius: 4
+            }
+        },
+        legend: {
+            labels: { colors: '#9ca3af' }
+        },
+        grid: {
+            borderColor: '#334155'
+        },
+        dataLabels: { enabled: false }
+    };
+    
+    const chart = new ApexCharts(document.querySelector("#trend-chart"), options);
+    chart.render();
+</script>
 {% endblock %}
