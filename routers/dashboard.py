@@ -6,6 +6,7 @@ from services.agent_status import get_agents_status
 from services.event_parser import get_recent_events
 from services.cron_costs import get_cron_stats
 from services.todoist_sync import get_today_tasks
+from services.alerts import get_alerts
 
 router = APIRouter()
 
@@ -16,6 +17,7 @@ async def dashboard(request: Request):
     events = get_recent_events(hours=24)
     cron_stats = get_cron_stats()
     tasks = get_today_tasks()
+    alerts = get_alerts()
     
     # Count statuses
     active_agents = len([a for a in agents if a.get('status') == 'active'])
@@ -27,6 +29,10 @@ async def dashboard(request: Request):
         events=events[:20],
         cron_stats=cron_stats,
         tasks=tasks,
+        alerts=alerts,
+        commitments=alerts.get('overdue', 0),
+        cooling=alerts.get('cooling', 0),
+        overdue=alerts.get('overdue', 0),
         agent_count=len(agents),
         cron_count=cron_stats.get('total_jobs', 0),
         page_title="Mission Control — Rehoboam"

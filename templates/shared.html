@@ -1,32 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card p-6">
-    <h1 class="text-2xl font-bold mb-6">
-        <i class="fas fa-folder-open mr-2 text-orange-400"></i>Shared Context
-    </h1>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="glass rounded-xl p-6 border border-brand-border">
+        <h1 class="text-2xl font-bold flex items-center gap-3">
+            <i data-lucide="folder-open" class="w-7 h-7 text-brand-accent"></i>
+            Shared Context
+        </h1>
+        <p class="text-gray-400 mt-2">Arquivos de contexto compartilhado do sistema</p>
+    </div>
     
+    <!-- Quick Feedback -->
+    <div class="glass rounded-xl p-4 border border-brand-border">
+        <h2 class="text-sm font-semibold mb-3">Quick Feedback</h2>
+        <form hx-post="/api/shared/quick-feedback" hx-swap="outerHTML" class="flex gap-2">
+            <input type="text" name="feedback" placeholder="Adicionar feedback rápido..." 
+                   class="flex-1 bg-brand-black border border-brand-border rounded-lg px-4 py-2 text-sm focus:border-brand-accent focus:outline-none">
+            <button type="submit" class="bg-brand-accent/20 hover:bg-brand-accent/30 text-brand-accent px-4 py-2 rounded-lg text-sm border border-brand-accent/30">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+        </form>
+    </div>
+    
+    <!-- Context Files Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {% for ctx in contexts %}
-        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700 hover:border-gray-600 cursor-pointer"
-             hx-get="/shared/{{ ctx.name }}"
+        {% for file_name, file_data in files.items() %}
+        <div class="glass rounded-xl p-5 border border-brand-border hover:border-brand-accent/30 transition cursor-pointer"
+             hx-get="/shared/{{ file_name.replace('.md', '') }}"
              hx-target="#editor-panel"
              hx-swap="innerHTML">
-            <div class="flex items-center justify-between mb-2">
-                <span class="font-semibold">{{ ctx.name }}</span>
-                <span class="text-xs text-gray-500">{{ ctx.type }}</span>
+            <div class="flex items-center gap-3 mb-3">
+                <div class="p-2 bg-brand-black rounded-lg">
+                    <i data-lucide="file-text" class="w-5 h-5 text-brand-accent"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold">{{ file_name }}</h3>
+                    <p class="text-xs text-gray-500">Context file</p>
+                </div>
             </div>
-            <p class="text-sm text-gray-400 line-clamp-3">{{ ctx.content }}</p>
+            <p class="text-xs text-gray-400 line-clamp-3">{{ file_data.content }}</p>
         </div>
         {% else %}
-        <div class="col-span-3 text-center text-gray-500 py-8">
-            <i class="fas fa-folder-open text-4xl mb-4 opacity-50"></i>
-            <p>No shared contexts found</p>
+        <div class="col-span-3 glass rounded-xl p-8 border border-brand-border text-center">
+            <i data-lucide="folder-open" class="w-12 h-12 mx-auto mb-4 text-gray-600"></i>
+            <p class="text-gray-500">Nenhum arquivo de contexto encontrado</p>
         </div>
         {% endfor %}
     </div>
     
     <!-- Editor Panel -->
-    <div id="editor-panel" class="mt-6"></div>
+    <div id="editor-panel" class="glass rounded-xl p-6 border border-brand-border">
+        <p class="text-gray-500 text-center py-8">Selecione um arquivo para editar</p>
+    </div>
 </div>
 {% endblock %}

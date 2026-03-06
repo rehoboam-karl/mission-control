@@ -2,42 +2,76 @@
 
 {% block content %}
 <div class="space-y-6">
-    <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold">
-            <i class="fas fa-clipboard-list mr-2 text-yellow-400"></i>Daily Standup
+    <!-- Header -->
+    <div class="glass rounded-xl p-6 border border-brand-border">
+        <h1 class="text-2xl font-bold flex items-center gap-3">
+            <i data-lucide="clipboard-list" class="w-7 h-7 text-brand-accent"></i>
+            Daily Standup
         </h1>
-        <span class="text-gray-500">{{ today_date }}</span>
+        <p class="text-gray-400 mt-2">{{ standup.today_total }} eventos hoje · {{ standup.yesterday_total }} ontem</p>
     </div>
     
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="card p-4">
-            <div class="text-3xl font-bold text-blue-400">{{ agents|length }}</div>
-            <div class="text-gray-400 text-sm">Total Agents</div>
+    <!-- Today's Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="glass rounded-xl p-4 border border-brand-border">
+            <p class="text-3xl font-bold text-green-400">{{ standup.today_total }}</p>
+            <p class="text-sm text-gray-400">Eventos Hoje</p>
         </div>
-        <div class="card p-4">
-            <div class="text-3xl font-bold text-green-400">{{ event_summary.total }}</div>
-            <div class="text-gray-400 text-sm">Events Today</div>
+        <div class="glass rounded-xl p-4 border border-brand-border">
+            <p class="text-3xl font-bold text-blue-400">{{ standup.yesterday_total }}</p>
+            <p class="text-sm text-gray-400">Eventos Ontem</p>
         </div>
-        <div class="card p-4">
-            <div class="text-3xl font-bold {% if event_summary.errors > 0 %}text-red-400{% else %}text-green-400{% endif %}">
-                {{ event_summary.errors }}
+        <div class="glass rounded-xl p-4 border border-brand-border">
+            <p class="text-3xl font-bold text-yellow-400">{{ standup.trend[-1].ok if standup.trend else 0 }}</p>
+            <p class="text-sm text-gray-400">OK (7 dias)</p>
+        </div>
+        <div class="glass rounded-xl p-4 border border-brand-border">
+            <p class="text-3xl font-bold text-red-400">{{ standup.trend[-1].error if standup.trend else 0 }}</p>
+            <p class="text-sm text-gray-400">Erros (7 dias)</p>
+        </div>
+    </div>
+    
+    <!-- 7-Day Trend Chart -->
+    <div class="glass rounded-xl p-6 border border-brand-border">
+        <h2 class="text-lg font-semibold mb-4">7-Day Trend</h2>
+        <div class="grid grid-cols-7 gap-2">
+            {% for day in standup.trend %}
+            <div class="text-center">
+                <div class="text-xs text-gray-500 mb-1">{{ day.date[5:] }}</div>
+                <div class="h-16 flex flex-col justify-end gap-1">
+                    <div class="bg-green-500/50 rounded" style="height: {{ (day.ok / 10 * 40)|int }}px; min-height: 4px"></div>
+                    <div class="bg-red-500/50 rounded" style="height: {{ (day.error / 10 * 40)|int }}px; min-height: 4px"></div>
+                </div>
+                <div class="text-xs mt-1">{{ day.total }}</div>
             </div>
-            <div class="text-gray-400 text-sm">Errors</div>
+            {% endfor %}
+        </div>
+        <div class="flex gap-4 mt-4 text-xs">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-green-500 rounded"></span> OK</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-red-500 rounded"></span> Erro</span>
         </div>
     </div>
     
-    <!-- Agent Status -->
-    <div class="card p-6">
-        <h2 class="text-lg font-semibold mb-4">Agent Status</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {% for agent in agents %}
-            <div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
-                <div class="flex items-center justify-between">
-                    <span class="font-mono text-sm">{{ agent.name }}</span>
-                    <span class="status-dot status-{{ agent.status }}"></span>
+    <!-- Today's Agents -->
+    <div class="glass rounded-xl p-6 border border-brand-border">
+        <h2 class="text-lg font-semibold mb-4">Today by Agent</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for agent_id, data in standup.today.items() %}
+            <div class="bg-brand-black rounded-lg p-4 border border-brand-border">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-semibold">{{ agent_id }}</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">
+                        {{ data.ok }} OK
+                    </span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-xs text-gray-400">
+                    <div>Events: {{ data.events|length }}</div>
+                    <div>Tokens: {{ data.tokens }}</div>
+                    <div class="{% if data.error > 0 %}text-red-400{% endif %}">Errors: {{ data.error }}</div>
                 </div>
             </div>
+            {% else %}
+            <p class="text-gray-500">Nenhum evento hoje</p>
             {% endfor %}
         </div>
     </div>

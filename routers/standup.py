@@ -2,29 +2,27 @@
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
-from services.agent_status import get_agents_status
-from services.event_parser import get_recent_events
-from datetime import datetime
+from services.standup_service import get_standup_data
 
 router = APIRouter()
 
 @router.get("/standup", response_class=HTMLResponse)
 async def standup_page(request: Request):
     """Daily standup view"""
-    agents = get_agents_status()
-    today_events = get_recent_events(hours=24)
-    
-    # Group events by type
-    event_summary = {
-        'total': len(today_events),
-        'errors': len([e for e in today_events if e.get('level') == 'error']),
-        'warnings': len([e for e in today_events if e.get('level') == 'warning']),
-    }
+    standup = get_standup_data()
     
     return request.app.state.jinja.get_template("standup.html").render(
         request=request,
-        agents=agents,
-        event_summary=event_summary,
-        today_date=datetime.now().strftime("%Y-%m-%d"),
+        standup=standup,
         page_title="Daily Standup - Mission Control"
+    )
+
+@router.get("/standup/partial", response_class=HTMLResponse)
+async def standup_partial(request: Request):
+    """HTMX partial for standup"""
+    standup = get_standup_data()
+    
+    return request.app.state.jinja.get_template("partials/standup.html").render(
+        request=request,
+        standup=standup
     )
