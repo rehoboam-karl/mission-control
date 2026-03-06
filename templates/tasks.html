@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-surface border border-border rounded-lg p-6">
+    <h1 class="text-xl font-semibold mb-6">
+        <i class="fas fa-tasks mr-2 text-accent"></i>Tasks — Todoist
+    </h1>
+    
+    <div hx-get="/tasks/partial" hx-trigger="every 60s" hx-swap="innerHTML">
+        {% include "partials/task_list.html" %}
+    </div>
+</div>
+{% endblock %}

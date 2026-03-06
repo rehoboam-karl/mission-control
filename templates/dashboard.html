@@ -1,75 +1,50 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Agents Overview -->
-    <div class="lg:col-span-2">
-        <div class="card p-4">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold">
-                    <i class="fas fa-robot mr-2 text-blue-400"></i>Agents
-                </h2>
-                <span class="text-sm text-gray-500">{{ agents|length }} total</span>
-            </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3" 
-                 hx-get="/agents/partial" 
-                 hx-trigger="every 30s"
-                 hx-swap="innerHTML">
-                {% include "partials/agent_grid.html" %}
-            </div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Agent Status Grid -->
+    <div class="bg-surface border border-border rounded-lg p-4">
+        <h2 class="text-sm font-semibold text-gray-400 mb-3">Agent Status</h2>
+        <div class="grid grid-cols-2 gap-2" 
+             hx-get="/agents/partial" 
+             hx-trigger="every 30s"
+             hx-swap="innerHTML">
+            {% include "partials/agent_grid.html" %}
         </div>
     </div>
     
-    <!-- Quick Stats -->
-    <div class="space-y-4">
-        <div class="card p-4">
-            <h3 class="text-sm font-medium text-gray-400 mb-3">System Status</h3>
-            <div class="space-y-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-400">Active Agents</span>
-                    <span class="text-green-400 font-mono">{{ agents|selectattr('status', 'equalto', 'active')|list|length }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-400">Events (24h)</span>
-                    <span class="text-blue-400 font-mono">{{ events|length }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-400">Cron Jobs</span>
-                    <span class="text-purple-400 font-mono">{{ cron_stats.total_jobs }}</span>
-                </div>
-            </div>
+    <!-- Tasks Hoje (Todoist) -->
+    <div class="bg-surface border border-border rounded-lg p-4">
+        <h2 class="text-sm font-semibold text-gray-400 mb-3">Tasks Hoje</h2>
+        <div hx-get="/tasks/partial" hx-trigger="every 60s" hx-swap="innerHTML">
+            {% include "partials/task_list.html" %}
         </div>
-        
-        <div class="card p-4">
-            <h3 class="text-sm font-medium text-gray-400 mb-3">Cron Jobs</h3>
-            <div class="space-y-2">
-                {% for job in cron_stats.jobs[:5] %}
-                <div class="flex items-center justify-between text-sm">
-                    <span class="truncate">{{ job.name }}</span>
-                    <span class="status-dot status-{{ 'active' if job.status == 'active' else 'idle' }}"></span>
-                </div>
-                {% endfor %}
-            </div>
+    </div>
+    
+    <!-- Cron Status -->
+    <div class="bg-surface border border-border rounded-lg p-4">
+        <h2 class="text-sm font-semibold text-gray-400 mb-3">Cron Status</h2>
+        <div class="flex gap-4 text-xs mb-3">
+            <span class="text-green-400">✅ ok: {{ cron_stats.active_jobs }}</span>
+            <span class="text-red-400">❌ error: {{ cron_stats.disabled_jobs }}</span>
         </div>
+        <div hx-get="/crons/partial" hx-trigger="every 60s" hx-swap="innerHTML">
+            {% include "partials/cron_table.html" %}
+        </div>
+    </div>
+    
+    <!-- Alerts -->
+    <div class="bg-surface border border-border rounded-lg p-4">
+        <h2 class="text-sm font-semibold text-gray-400 mb-3">Alerts</h2>
+        {% include "partials/alerts.html" %}
     </div>
 </div>
 
 <!-- Event Feed -->
-<div class="mt-6">
-    <div class="card p-4">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold">
-                <i class="fas fa-stream mr-2 text-green-400"></i>Recent Events
-            </h2>
-            <a href="/events" class="text-sm text-blue-400 hover:underline">View all</a>
-        </div>
-        
-        <div hx-get="/events/partial?hours=24" 
-             hx-trigger="every 10s"
-             hx-swap="innerHTML">
-            {% include "partials/event_feed.html" %}
-        </div>
+<div class="mt-6 bg-surface border border-border rounded-lg p-4">
+    <h2 class="text-sm font-semibold text-gray-400 mb-3">Event Feed (últimos 20 eventos)</h2>
+    <div hx-get="/events/partial?hours=24" hx-trigger="every 10s" hx-swap="innerHTML">
+        {% include "partials/event_feed.html" %}
     </div>
 </div>
 {% endblock %}

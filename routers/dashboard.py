@@ -15,10 +15,16 @@ async def dashboard(request: Request):
     events = get_recent_events(hours=24)
     cron_stats = get_cron_stats()
     
+    # Count statuses
+    active_agents = len([a for a in agents if a.get('status') == 'active'])
+    
     return request.app.state.jinja.get_template("dashboard.html").render(
         request=request,
         agents=agents,
+        active_agents=active_agents,
         events=events[:20],
         cron_stats=cron_stats,
-        page_title="Mission Control v4"
+        agent_count=len(agents),
+        cron_count=cron_stats.get('total_jobs', 0),
+        page_title="Mission Control — Rehoboam"
     )

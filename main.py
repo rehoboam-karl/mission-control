@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
 
 from db import init_db
-from routers import dashboard, agents, events, crons, standup, shared_context, api
+from routers import dashboard, agents, events, crons, standup, shared_context, api, tasks
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -49,6 +49,7 @@ app.include_router(events.router)
 app.include_router(crons.router)
 app.include_router(standup.router)
 app.include_router(shared_context.router)
+app.include_router(tasks.router)
 app.include_router(api.router)
 
 # Development server

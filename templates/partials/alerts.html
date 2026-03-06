@@ -1,0 +1,29 @@
+<!-- Alerts Partial -->
+<div class="space-y-2 text-sm">
+    {% if commitments %}
+    <div class="flex items-center gap-2 text-yellow-400">
+        <span>⚠️</span>
+        <span>Commitments vencendo: {{ commitments }}</span>
+    </div>
+    {% endif %}
+    
+    {% if cooling %}
+    <div class="flex items-center gap-2 text-blue-400">
+        <span>❄️</span>
+        <span>Relationships cooling: {{ cooling }}</span>
+    </div>
+    {% endif %}
+    
+    {% if overdue %}
+    <div class="flex items-center gap-2 text-red-400">
+        <span>🔴</span>
+        <span>Overdue tasks: {{ overdue }}</span>
+    </div>
+    {% endif %}
+    
+    {% if not commitments and not cooling and not overdue %}
+    <div class="text-green-400 text-center py-2">
+        <i class="fas fa-check mr-1"></i> Tudo OK
+    </div>
+    {% endif %}
+</div>
