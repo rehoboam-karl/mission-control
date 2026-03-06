@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="glass rounded-xl p-6 border border-brand-border">
+        <h1 class="text-2xl font-bold flex items-center gap-3">
+            <i data-lucide="inbox" class="w-7 h-7 text-brand-accent"></i>
+            Outbox
+        </h1>
+        <p class="text-gray-400 mt-2">Arquivos de saída do sistema</p>
+    </div>
+    
+    <!-- Outbox Items -->
+    <div class="glass rounded-xl p-6 border border-brand-border"
+         hx-get="/outbox/partial" 
+         hx-trigger="every 30s"
+         hx-swap="innerHTML">
+        {% include "partials/outbox.html" %}
+    </div>
+</div>
+{% endblock %}

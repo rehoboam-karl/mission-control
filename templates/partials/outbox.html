@@ -1,0 +1,29 @@
+<!-- Outbox Partial -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for item in items %}
+    <div class="bg-brand-black rounded-lg border border-brand-border p-4 hover:border-brand-accent/30 transition cursor-pointer"
+         hx-get="/api/outbox/{{ item.name }}"
+         hx-target="#outbox-content"
+         hx-swap="innerHTML">
+        <div class="flex items-center gap-3 mb-2">
+            <div class="p-2 bg-brand-card rounded-lg">
+                <i data-lucide="file-text" class="w-4 h-4 text-brand-accent"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h3 class="font-medium text-sm truncate">{{ item.name }}</h3>
+                <p class="text-xs text-gray-500">{{ item.type }} · {{ item.size }} bytes</p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-span-3 text-center text-gray-500 py-8">
+        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-4 text-gray-600"></i>
+        <p>Nenhum item na outbox</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Content Preview -->
+<div id="outbox-content" class="mt-6">
+    <p class="text-gray-500 text-center py-8">Clique em um arquivo para visualizar</p>
+</div>
