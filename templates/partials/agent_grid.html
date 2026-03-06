@@ -2,12 +2,16 @@
 {% for agent in agents %}
 <div class="flex items-center justify-between bg-bg p-2 rounded border border-border">
     <div class="flex items-center gap-2">
-        <span class="status-dot status-{{ agent.status }}"></span>
-        <span class="text-sm font-mono">{{ agent.name }}</span>
+        <span class="text-lg">{{ agent.emoji }}</span>
+        <div class="flex flex-col">
+            <span class="text-sm font-mono">{{ agent.name }}</span>
+            <span class="text-xs text-gray-500">{{ agent.model }}</span>
+        </div>
     </div>
-    <span class="text-xs text-gray-500">
-        {% if agent.last_seen %}{{ agent.last_seen[11:16] }}{% else %}--{% endif %}
-    </span>
+    <div class="flex items-center gap-2">
+        <span class="text-xs text-gray-500">{{ agent.last_active }}</span>
+        <span class="status-dot status-{{ agent.status_color }}"></span>
+    </div>
 </div>
 {% else %}
 <div class="text-center text-gray-500 py-4 text-sm">Nenhum agent encontrado</div>

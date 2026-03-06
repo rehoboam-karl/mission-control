@@ -1,7 +1,7 @@
 """API Router - JSON endpoints for HTMX"""
 
 from fastapi import APIRouter
-from services.agent_status import get_all_agent_status
+from services.agent_status import get_agents_status
 from services.event_parser import get_recent_events
 from services.cron_costs import get_cron_stats
 
@@ -10,7 +10,7 @@ router = APIRouter()
 @router.get("/api/agents")
 async def api_agents():
     """JSON endpoint for agent status"""
-    return {"agents": get_all_agent_status()}
+    return {"agents": get_agents_status()}
 
 @router.get("/api/events")
 async def api_events(hours: int = 24):

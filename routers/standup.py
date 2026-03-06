@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
-from services.agent_status import get_all_agent_status
+from services.agent_status import get_agents_status
 from services.event_parser import get_recent_events
 from datetime import datetime
 
@@ -11,7 +11,7 @@ router = APIRouter()
 @router.get("/standup", response_class=HTMLResponse)
 async def standup_page(request: Request):
     """Daily standup view"""
-    agents = get_all_agent_status()
+    agents = get_agents_status()
     today_events = get_recent_events(hours=24)
     
     # Group events by type
