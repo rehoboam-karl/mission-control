@@ -6,6 +6,15 @@
     <meta name="theme-color" content="#020617">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Mission Control Dashboard - Monitor OpenClaw agents, cron jobs, and activities">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="apple-touch-icon" href="/static/icon-192.svg">
+    
     <title>Mission Control — Rehoboam</title>
     
     <!-- Fonts -->
@@ -273,6 +282,17 @@
         
         // Initialize Lucide icons
         lucide.createIcons();
+    </script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then((reg) => console.log('SW registered:', reg.scope))
+                    .catch((err) => console.log('SW registration failed:', err));
+            });
+        }
     </script>
 </body>
 </html>
