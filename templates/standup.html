@@ -31,7 +31,7 @@
         </div>
     </div>
     
-    <!-- 7-Day Trend Chart (ApexCharts) -->
+    <!-- 7-Day Trend Chart -->
     <div class="glass rounded-xl p-6 border border-brand-border">
         <h2 class="text-lg font-semibold mb-4">7-Day Trend</h2>
         <div id="trend-chart" class="h-64"></div>
@@ -62,51 +62,56 @@
     </div>
 </div>
 
+<!-- ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
 <script>
     // Build chart data from template
-    const trendData = {{ standup.trend | tojson }};
+    const trendData = {{ standup.trend | tojson | safe }};
     
-    const dates = trendData.map(d => d.date.slice(5)); // MM-DD
-    const okData = trendData.map(d => d.ok);
-    const errorData = trendData.map(d => d.error);
-    
-    const options = {
-        chart: {
-            type: 'bar',
-            height: 250,
-            background: 'transparent',
-            toolbar: { show: false },
-            fontFamily: 'Inter, sans-serif'
-        },
-        series: [
-            { name: 'OK', data: okData },
-            { name: 'Erros', data: errorData }
-        ],
-        xaxis: {
-            categories: dates,
-            labels: { style: { colors: '#9ca3af' } }
-        },
-        yaxis: {
-            labels: { style: { colors: '#9ca3af' } }
-        },
-        colors: ['#22c55e', '#ef4444'],
-        plotOptions: {
-            bar: {
-                horizontal: false,
-                columnWidth: '60%',
-                borderRadius: 4
-            }
-        },
-        legend: {
-            labels: { colors: '#9ca3af' }
-        },
-        grid: {
-            borderColor: '#334155'
-        },
-        dataLabels: { enabled: false }
-    };
-    
-    const chart = new ApexCharts(document.querySelector("#trend-chart"), options);
-    chart.render();
+    if (trendData && trendData.length > 0) {
+        const dates = trendData.map(d => d.date.slice(5));
+        const okData = trendData.map(d => d.ok);
+        const errorData = trendData.map(d => d.error);
+        
+        const options = {
+            chart: {
+                type: 'bar',
+                height: 250,
+                background: 'transparent',
+                toolbar: { show: false },
+                fontFamily: 'Inter, sans-serif'
+            },
+            series: [
+                { name: 'OK', data: okData },
+                { name: 'Erros', data: errorData }
+            ],
+            xaxis: {
+                categories: dates,
+                labels: { style: { colors: '#9ca3af' } }
+            },
+            yaxis: {
+                labels: { style: { colors: '#9ca3af' } }
+            },
+            colors: ['#22c55e', '#ef4444'],
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '60%',
+                    borderRadius: 4
+                }
+            },
+            legend: {
+                labels: { colors: '#9ca3af' }
+            },
+            grid: {
+                borderColor: '#334155'
+            },
+            dataLabels: { enabled: false }
+        };
+        
+        const chart = new ApexCharts(document.querySelector("#trend-chart"), options);
+        chart.render();
+    }
 </script>
 {% endblock %}

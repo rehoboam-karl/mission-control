@@ -1,5 +1,5 @@
 <!-- Agent Grid Partial -->
-<!-- hx-get="/api/agents" hx-trigger="every 30s" hx-swap="innerHTML" -->
+<div hx-get="/agents/partial" hx-trigger="every 30s" hx-swap="innerHTML">
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
 {% for agent in agents %}
 {% set status_color = 'green' if agent.status == 'online' or agent.status == 'active' else ('yellow' if agent.status == 'idle' or agent.status == 'working' else 'red') %}

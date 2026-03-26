@@ -1,0 +1,55 @@
+<!-- Polymarket Metrics Partial -->
+{% if data.error %}
+<div class="text-red-400 text-sm">Error: {{ data.error }}</div>
+{% else %}
+<!-- Cluster Status -->
+<div class="mb-3 p-2 rounded-lg {% if data.cluster_health == 'healthy' %}bg-green-900/30{% elif data.cluster_health == 'degraded' %}bg-yellow-900/30{% else %}bg-red-900/30{% endif %}">
+    <div class="flex items-center justify-between text-xs">
+        <span class="text-gray-400">Cluster:</span>
+        <span class="capitalize {% if data.cluster_health == 'healthy' %}text-green-400{% elif data.cluster_health == 'degraded' %}text-yellow-400{% else %}text-red-400{% endif %}">
+            {{ data.cluster_health }} ({{ data.message }})
+        </span>
+    </div>
+    <div class="flex gap-2 mt-1">
+        {% for key, comp in data.cluster_components.items() %}
+        <div class="flex items-center gap-1 text-xs">
+            <span class="w-2 h-2 rounded-full {% if comp.running %}bg-green-500{% else %}bg-red-500{% endif %}"></span>
+            <span class="text-gray-500">{{ comp.name }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Main Metrics -->
+<div class="grid grid-cols-2 gap-3 mb-3">
+    <div class="bg-slate-800 rounded-lg p-3">
+        <p class="text-xs text-gray-500">Daily P&L</p>
+        <p class="text-lg font-bold text-green-400">${{ data.metrics.daily_pnl }}</p>
+    </div>
+    <div class="bg-slate-800 rounded-lg p-3">
+        <p class="text-xs text-gray-500">Trades Today</p>
+        <p class="text-lg font-bold text-blue-400">{{ data.metrics.daily_trades }}</p>
+    </div>
+    <div class="bg-slate-800 rounded-lg p-3">
+        <p class="text-xs text-gray-500">Volume (24h)</p>
+        <p class="text-lg font-bold text-yellow-400">${{ data.metrics.daily_volume }}</p>
+    </div>
+    <div class="bg-slate-800 rounded-lg p-3">
+        <p class="text-xs text-gray-500">Total Trades</p>
+        <p class="text-lg font-bold text-purple-400">{{ data.metrics.total_trades }}</p>
+    </div>
+</div>
+
+<!-- Top Whales -->
+<div class="text-xs text-gray-500 mb-2">Top Whales</div>
+{% if data.metrics.top_whales %}
+{% for whale in data.metrics.top_whales %}
+<div class="flex justify-between text-xs py-1">
+    <span class="font-mono text-gray-400">{{ whale.wallet }}</span>
+    <span class="text-green-400">${{ whale.volume }}K</span>
+</div>
+{% endfor %}
+{% else %}
+<div class="text-xs text-gray-600 italic">No whale data</div>
+{% endif %}
+{% endif %}

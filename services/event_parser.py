@@ -44,7 +44,7 @@ def get_recent_events(limit=50, hours=None):
                                 events.append({
                                     "timestamp": ts,
                                     "type": "cron",
-                                    "agent": entry.get("agentId", "main"),
+                                    "agent": entry.get("sessionKey", "agent:main:").split(":")[1] if "sessionKey" in entry else entry.get("agentId", "main"),
                                     "name": entry.get("jobName", entry.get("jobId", "?")),
                                     "status": entry.get("status", "?"),
                                     "summary": entry.get("summary", "")[:100],

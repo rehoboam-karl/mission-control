@@ -41,7 +41,7 @@
     <!-- Events Container -->
     <div id="events-container" class="glass rounded-xl p-6 border border-brand-border"
          hx-get="/events/partial?hours={{ hours|default(24) }}"
-         hx-trigger="load"
+         hx-trigger="load, every 30s"
          hx-swap="innerHTML">
         <div class="text-center text-gray-500 py-8">
             <i data-lucide="loader" class="w-6 h-6 mx-auto animate-spin"></i>

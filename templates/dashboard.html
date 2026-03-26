@@ -2,47 +2,47 @@
 
 {% block content %}
 <!-- Stats Bar -->
-<div class="grid grid-cols-4 gap-4 mb-6">
-    <div class="glass rounded-xl p-4 border border-brand-border">
-        <div class="flex items-center gap-3">
-            <div class="p-2 bg-green-500/10 rounded-lg">
-                <i data-lucide="bot" class="text-green-400 w-5 h-5"></i>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+    <div class="glass rounded-xl p-3 md:p-4 border border-brand-border">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="p-1.5 md:p-2 bg-green-500/10 rounded-lg">
+                <i data-lucide="bot" class="text-green-400 w-4 h-4 md:w-5 md:h-5"></i>
             </div>
             <div>
-                <p class="text-2xl font-bold">{{ agent_count }}</p>
+                <p class="text-xl md:text-2xl font-bold">{{ agent_count }}</p>
                 <p class="text-xs text-gray-500">Agents</p>
             </div>
         </div>
     </div>
-    <div class="glass rounded-xl p-4 border border-brand-border">
-        <div class="flex items-center gap-3">
-            <div class="p-2 bg-blue-500/10 rounded-lg">
-                <i data-lucide="clock" class="text-blue-400 w-5 h-5"></i>
+    <div class="glass rounded-xl p-3 md:p-4 border border-brand-border">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="p-1.5 md:p-2 bg-blue-500/10 rounded-lg">
+                <i data-lucide="clock" class="text-blue-400 w-4 h-4 md:w-5 md:h-5"></i>
             </div>
             <div>
-                <p class="text-2xl font-bold">{{ cron_count }}</p>
+                <p class="text-xl md:text-2xl font-bold">{{ cron_count }}</p>
                 <p class="text-xs text-gray-500">Cron Jobs</p>
             </div>
         </div>
     </div>
-    <div class="glass rounded-xl p-4 border border-brand-border">
-        <div class="flex items-center gap-3">
-            <div class="p-2 bg-yellow-500/10 rounded-lg">
-                <i data-lucide="zap" class="text-yellow-400 w-5 h-5"></i>
+    <div class="glass rounded-xl p-3 md:p-4 border border-brand-border">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="p-1.5 md:p-2 bg-yellow-500/10 rounded-lg">
+                <i data-lucide="zap" class="text-yellow-400 w-4 h-4 md:w-5 md:h-5"></i>
             </div>
             <div>
-                <p class="text-2xl font-bold">{{ cron_stats.total_monthly_cost|default(0)|round(0) }}</p>
+                <p class="text-xl md:text-2xl font-bold">{{ cron_stats.total_monthly_cost|default(0)|round(0) }}</p>
                 <p class="text-xs text-gray-500">$/month</p>
             </div>
         </div>
     </div>
-    <div class="glass rounded-xl p-4 border border-brand-border">
-        <div class="flex items-center gap-3">
-            <div class="p-2 bg-purple-500/10 rounded-lg">
-                <i data-lucide="check-circle" class="text-purple-400 w-5 h-5"></i>
+    <div class="glass rounded-xl p-3 md:p-4 border border-brand-border">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="p-1.5 md:p-2 bg-purple-500/10 rounded-lg">
+                <i data-lucide="check-circle" class="text-purple-400 w-4 h-4 md:w-5 md:h-5"></i>
             </div>
             <div>
-                <p class="text-2xl font-bold">{{ cron_stats.active_jobs }}</p>
+                <p class="text-xl md:text-2xl font-bold">{{ cron_stats.active_jobs }}</p>
                 <p class="text-xs text-gray-500">Active</p>
             </div>
         </div>
@@ -50,10 +50,10 @@
 </div>
 
 <!-- Bento Grid -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
     <!-- Agent Status Grid -->
-    <div class="lg:col-span-2 glass rounded-xl p-5 border border-brand-border">
-        <div class="flex items-center justify-between mb-4">
+    <div class="lg:col-span-2 glass rounded-xl p-4 md:p-5 border border-brand-border">
+        <div class="flex items-center justify-between mb-3 md:mb-4">
             <h2 class="text-sm font-semibold text-gray-400 flex items-center gap-2">
                 <i data-lucide="bot" class="w-4 h-4"></i> Agents
             </h2>
@@ -65,18 +65,18 @@
     </div>
     
     <!-- Tasks Hoje (Todoist) -->
-    <div class="glass rounded-xl p-5 border border-brand-border">
-        <h2 class="text-sm font-semibold text-gray-400 mb-4 flex items-center gap-2">
+    <div class="glass rounded-xl p-4 md:p-5 border border-brand-border">
+        <h2 class="text-sm font-semibold text-gray-400 mb-3 md:mb-4 flex items-center gap-2">
             <i data-lucide="check-square" class="w-4 h-4"></i> Tasks Hoje
         </h2>
-        <div hx-get="/tasks/partial" hx-trigger="every 60s" hx-swap="innerHTML" class="max-h-80 overflow-y-auto">
+        <div hx-get="/tasks/partial" hx-trigger="every 60s" hx-swap="innerHTML" class="max-h-60 md:max-h-80 overflow-y-auto">
             {% include "partials/task_list.html" %}
         </div>
     </div>
     
     <!-- Cron Status -->
-    <div class="glass rounded-xl p-5 border border-brand-border">
-        <div class="flex items-center justify-between mb-4">
+    <div class="glass rounded-xl p-4 md:p-5 border border-brand-border">
+        <div class="flex items-center justify-between mb-3 md:mb-4">
             <h2 class="text-sm font-semibold text-gray-400 flex items-center gap-2">
                 <i data-lucide="clock" class="w-4 h-4"></i> Cron Jobs
             </h2>
@@ -85,23 +85,36 @@
                 <span class="text-red-400">✗ {{ cron_stats.disabled_jobs }}</span>
             </div>
         </div>
-        <div hx-get="/crons/partial" hx-trigger="every 60s" hx-swap="innerHTML" class="max-h-60 overflow-y-auto">
+        <div hx-get="/crons/partial" hx-trigger="every 60s" hx-swap="innerHTML" class="max-h-48 md:max-h-60 overflow-y-auto">
             {% include "partials/cron_table.html" %}
         </div>
     </div>
     
     <!-- Alerts -->
-    <div class="glass rounded-xl p-5 border border-brand-border">
-        <h2 class="text-sm font-semibold text-gray-400 mb-4 flex items-center gap-2">
+    <div class="glass rounded-xl p-4 md:p-5 border border-brand-border">
+        <h2 class="text-sm font-semibold text-gray-400 mb-3 md:mb-4 flex items-center gap-2">
             <i data-lucide="bell" class="w-4 h-4"></i> Alerts
         </h2>
         {% include "partials/alerts.html" %}
     </div>
+    
+    <!-- Polymarket Bot -->
+    <div class="glass rounded-xl p-4 md:p-5 border border-brand-border">
+        <div class="flex items-center justify-between mb-3 md:mb-4">
+            <h2 class="text-sm font-semibold text-gray-400 flex items-center gap-2">
+                <i data-lucide="trending-up" class="w-4 h-4"></i> Polymarket
+            </h2>
+            <a href="/polymarket" class="text-xs text-brand-accent hover:underline">View →</a>
+        </div>
+        <div hx-get="/polymarket/partial" hx-trigger="load" hx-swap="innerHTML">
+            <div class="text-gray-500 text-sm">Loading...</div>
+        </div>
+    </div>
 </div>
 
 <!-- Event Feed -->
-<div class="mt-6 glass rounded-xl p-5 border border-brand-border">
-    <div class="flex items-center justify-between mb-4">
+<div class="mt-4 md:mt-6 glass rounded-xl p-4 md:p-5 border border-brand-border">
+    <div class="flex items-center justify-between mb-3 md:mb-4">
         <h2 class="text-sm font-semibold text-gray-400 flex items-center gap-2">
             <i data-lucide="activity" class="w-4 h-4"></i> Event Feed
         </h2>

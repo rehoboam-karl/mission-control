@@ -10,7 +10,7 @@ from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
 
 from db import init_db
-from routers import dashboard, agents, events, crons, standup, shared_context, api, tasks, outbox, relationships
+from routers import dashboard, agents, events, crons, standup, shared_context, api, tasks, outbox, relationships, polymarket
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -39,6 +39,7 @@ templates = Jinja2Templates(
 
 # Add tojson filter
 templates.env.filters['tojson'] = lambda x: json.dumps(x)
+templates.env.filters['format_number'] = lambda x: f"{x:,}" if x else "0"
 app.state.jinja = templates
 
 # Mount static files
@@ -57,6 +58,7 @@ app.include_router(tasks.router)
 app.include_router(outbox.router)
 app.include_router(relationships.router)
 app.include_router(api.router)
+app.include_router(polymarket.router)
 
 # Development server
 if __name__ == "__main__":
@@ -64,6 +66,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8001,
+        port=8766,
         reload=True
     )

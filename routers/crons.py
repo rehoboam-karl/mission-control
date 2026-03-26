@@ -26,3 +26,13 @@ async def crons_partial(request: Request):
         request=request,
         cron_stats=stats
     )
+
+@router.get("/api/crons")
+async def crons_api():
+    """JSON endpoint for cron data."""
+    from services.cron_costs import get_cron_data
+    try:
+        crons = get_cron_data()
+        return {"crons": crons}
+    except Exception as e:
+        return {"crons": [], "error": str(e)}

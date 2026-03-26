@@ -81,12 +81,18 @@
 </div>
 
 <!-- D3.js -->
-<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3&#64;7"></script>
 
 <script>
-    const data = {{ relationships | tojson }};
+    // Safely parse relationships data
+    let data = {{ relationships | tojson | safe }};
     
-    const width = document.getElementById('relationship-graph').clientWidth;
+    if (!data || !data.nodes) {
+        data = { nodes: [], links: [] };
+    }
+    
+    const container = document.getElementById('relationship-graph');
+    const width = container ? container.clientWidth : 800;
     const height = 500;
     
     // Group nodes by group

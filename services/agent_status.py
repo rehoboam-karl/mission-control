@@ -3,9 +3,61 @@
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import List, Dict, Optional, Tuple
 
 OPENCLAW_HOME = Path.home() / ".openclaw"
 CONFIG_PATH = OPENCLAW_HOME / "openclaw.json"
+
+
+def _get_agent_tokens(agent_id: str) -> Tuple[int, int, float]:
+    """Get total tokens and message count for an agent from session data"""
+    agent_dir = OPENCLAW_HOME / "agents" / agent_id
+    
+    total_tokens = 0
+    message_count = 0
+    
+    sessions_dir = agent_dir / "sessions"
+    if sessions_dir.exists():
+        try:
+            all_sessions = [f for f in sessions_dir.glob("*.jsonl") if not f.name.endswith('.lock')]
+            
+            for session_file in all_sessions:
+                with open(session_file, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        try:
+                            entry = json.loads(line)
+                            # Count messages
+                            msg_type = entry.get('customType') or entry.get('role')
+                            if msg_type in ['user', 'assistant', 'model-snapshot']:
+                                message_count += 1
+                            
+                            # Try to get tokens from usage field
+                            usage = entry.get('usage', {})
+                            if usage:
+                                total_tokens += usage.get('input_tokens', 0)
+                                total_tokens += usage.get('output_tokens', 0)
+                            
+                            # Also check inside message object
+                            msg_obj = entry.get('message', {})
+                            if isinstance(msg_obj, dict):
+                                content = msg_obj.get('content', '')
+                                if isinstance(content, str):
+                                    total_tokens += len(content) // 4
+                                elif isinstance(content, list):
+                                    text_parts = [p.get("text", "") for p in content if p.get("type") == "text"]
+                                    total_tokens += sum(len(t) // 4 for t in text_parts)
+                                    
+                        except:
+                            continue
+            
+        except Exception as e:
+            print(f"Could not read tokens for {agent_id}: {e}")
+    
+    estimated_cost = (total_tokens / 1_000_000) * 0.03
+    return total_tokens, message_count, round(estimated_cost, 4)
 
 def get_agents_status():
     """Read agent list + session data → status per agent."""
@@ -78,6 +130,10 @@ def get_agents_status():
 
         # Calculate status
         now = datetime.now()
+        
+        # Get token usage
+        tokens_used, message_count, estimated_cost = _get_agent_tokens(agent_id)
+        
         if last_active is None:
             status = "offline"
             status_color = "red"
@@ -120,6 +176,10 @@ def get_agents_status():
             "last_active": ago,
             "sessions": session_count,
             "has_active_task": has_active_task,
+            "tokens_used": tokens_used,
+            "message_count": message_count,
+            "estimated_cost": estimated_cost,
+            "workspace": workspace,
         })
 
     return results
